@@ -8,3 +8,11 @@ export const purchaseJournal = writable([]);
 
 export const cashDisbursementsJournal = writable([]);
 
+export const generalJournal = writable([]);
+
+export const startingCapital = writable({
+    date: "",
+    inventory: 0
+});
+
+export const state = writable(0);

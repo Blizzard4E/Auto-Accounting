@@ -108,23 +108,23 @@
                         <div class="col">{entry.date}</div>
                         <div class="col">
                             {#if entry.debit}
-                                ${entry.debit}
+                                ${entry.debit.toLocaleString('en', {useGrouping:true})}
                             {:else }
                                 &nbsp
                             {/if}
                         </div>  
                         <div class="col">
                             {#if entry.credit}
-                                ${entry.credit}
+                                ${entry.credit.toLocaleString('en', {useGrouping:true})}
                             {:else }
                                 &nbsp
                             {/if}
                         </div>  
                         <div class="col">
                             {#if entry.balance > 0}
-                                ${entry.balance}
+                                ${entry.balance.toLocaleString('en', {useGrouping:true})}
                             {:else}
-                                ${-entry.balance}
+                                ${-entry.balance.toLocaleString('en', {useGrouping:true})}
                             {/if}
                        </div>
                     {/each}

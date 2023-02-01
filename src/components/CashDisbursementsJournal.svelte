@@ -12,6 +12,11 @@
     let inventoryTotal = 0;
     let otherTotal = 0;
     let accountPayTotal = 0;
+    let month;
+    /**
+     * @type {Date}
+     */
+    let lastDay;
 
     cashDisbursementsJournal.subscribe((value) => {
         cashDisbursementsJournalData = value;
@@ -25,10 +30,18 @@
             cashTotal += entry.cash;
             otherTotal += entry.other;
         });
+        if(cashDisbursementsJournalData.length) {
+            month = new Date(cashDisbursementsJournalData[0].date).getMonth();
+            lastDay = new Date(2022, month + 1, 0);
+        }
     });
 
     onMount(() => {
         rows = cashDisbursementsJournalData.length;
+        if(cashDisbursementsJournalData.length) {
+            month = new Date(cashDisbursementsJournalData[0].date).getMonth();
+            lastDay = new Date(2022, month + 1, 0);
+        }
     });
 
     /**
@@ -42,10 +55,18 @@
         // @ts-ignore
         cashDisbursementsJournal.update((value) => cashDisbursementsJournalData);
     }
+    /**
+     * @param {Date} date
+     */
+     function formatDate(date) {
+        return date.toLocaleDateString('en', {
+            month: 'short', day: 'numeric', 
+        })
+    }
 </script>
 
 <main>
-    <h1>Purchase Journal</h1>
+    <h1>Cash Disbursements Journal</h1>
     <div class="table">
         <div class="col titles">Date</div>
         <div class="col titles">Payee</div>
@@ -59,29 +80,30 @@
         {/each}
         {#if cashDisbursementsJournalData.length}
             <div class="col">
-                {cashDisbursementsJournalData[cashDisbursementsJournalData.length - 1].date}
+                {#if cashDisbursementsJournalData[0].date != ""}
+                    {formatDate(lastDay)}
+                {/if}
             </div>
             <div class="col">Totals</div>
             <div class="col"></div>
-            <div class="col"></div>
             <div class="col">
                 {#if cashTotal}
-                    ${cashTotal}
+                    ${cashTotal.toLocaleString('en', {useGrouping:true})}
                 {/if}
             </div>
             <div class="col">
                 {#if inventoryTotal}
-                    ${inventoryTotal}
+                    ${inventoryTotal.toLocaleString('en', {useGrouping:true})}
                 {/if}
             </div>
             <div class="col">
                 {#if otherTotal}
-                    ${otherTotal}
+                    ${otherTotal.toLocaleString('en', {useGrouping:true})}
                 {/if}
             </div>
             <div class="col">
                 {#if accountPayTotal}
-                    ${accountPayTotal}
+                    ${accountPayTotal.toLocaleString('en', {useGrouping:true})}
                 {/if}
             </div>
             
@@ -112,7 +134,7 @@
     h1 {
         font-family: "Poppins", sans-serif;
         text-align: center;
-        background-color: rgb(255, 61, 61);
+        background-color: rgb(33, 110, 255);
         color: white;
     }
     .titles.col {

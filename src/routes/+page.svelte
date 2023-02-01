@@ -1,4 +1,5 @@
 <script>
+    import { state } from "../stores";
     import GeneralLedger from "../components/GeneralLedger.svelte";
     import AccountsReceivableLedger from "../components/AccountsReceivableLedger.svelte";
     import SalesJournal from "../components/SalesJournal.svelte";       
@@ -6,7 +7,14 @@
     import AccountPayableLedger from "../components/AccountPayableLedger.svelte";
     import PurchaseJournal from "../components/PurchaseJournal.svelte";
     import CashDisbursementsJournal from "../components/CashDisbursementsJournal.svelte";
-    let tab = 3;
+    import GeneralJournal from "../components/GeneralJournal.svelte";
+    import MenuScreen from "../components/MenuScreen.svelte";
+    let tab = 0;
+    /**
+     * @type {number}
+     */
+    let currentState;
+    state.subscribe(value => currentState = value);
 
     /**
      * @param {number} index
@@ -15,6 +23,8 @@
         tab = index;
     }
 </script>
+<MenuScreen />
+{#if currentState == 1}
 <nav>
     <button on:click={() => changeTab(0)} class="sj" class:active={tab == 0}>Sales Journal</button>
     <button on:click={() => changeTab(1)} class="crj" class:active={tab == 1}>Cash Receipt Journal</button>
@@ -32,6 +42,7 @@
     {:else if tab == 3}
         <CashDisbursementsJournal/>
     {:else}
+        <GeneralJournal/>
     {/if}
     <div style="width: 1000px;">
         <AccountsReceivableLedger/>
@@ -39,6 +50,8 @@
         <GeneralLedger/>
     </div>
 </main>
+{/if}
+
 
 <style>
     main {

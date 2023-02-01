@@ -1,5 +1,5 @@
 <script>
-    import { purchaseJournal } from "../stores";
+    import { purchaseJournal, cashDisbursementsJournal, generalJournal } from "../stores";
 
 
     /**
@@ -13,6 +13,15 @@
     let purchaseJournalData = [];
 
     /**
+     * @type {Array<{date: String, payeeName: String, accountName: String, accountPay: Number, inventory: Number, cash: Number, other: Number}>}
+     */
+     let cashDisbursementsJournalData = [];
+    /**
+     * @type {Array<{date: String, accountName: String, accountNameTo: String, explanation: String, debit: Number, credit: Number, debit2: Number, credit2: Number}>}
+     */
+     let generalJournalData = [];
+
+    /**
      * @param {Array<{date: String, debit: Number, credit: Number, balance: Number}>} arr
      */
     function sortByDates(arr) {
@@ -23,13 +32,30 @@
         purchaseJournalData = value;
         updateJournal();
     });
+    cashDisbursementsJournal.subscribe(value => {
+        cashDisbursementsJournalData = value;
+        updateJournal();
+    });
+    generalJournal.subscribe(value => {
+        generalJournalData = value;
+        updateJournal();
+    })
 
     function updateJournal() {
         accountPayData = [];
         if(purchaseJournalData.length) {
             purchaseJournalData.forEach(entry => {
                 if(entry.accountPay > 0) {
-                    let found = accountPayData.find(account => account.name === entry.accountName);
+                    let accName = "";
+                    if(entry.accountName.includes('/')) {
+                        let arrName = [];
+                        arrName = entry.accountName.split('/');
+                        accName = arrName[1];
+                    }
+                    else {
+                        accName = entry.accountName;
+                    }
+                    let found = accountPayData.find(account => account.name == accName);
                     if(found) {
                         let index = accountPayData.indexOf(found);
                         accountPayData[index].entries.push({
@@ -41,12 +67,77 @@
                     }
                     else {
                         accountPayData.push({
-                            name: entry.accountName,
+                            name: accName,
                             entries: [
                                 {
                                     date: entry.date,
                                     debit: 0,
                                     credit: entry.accountPay,
+                                    balance: 0
+                                }
+                            ]
+                        })
+                    }
+                }
+            });
+        }
+        if(cashDisbursementsJournalData.length) {
+            cashDisbursementsJournalData.forEach(entry => {
+                if(entry.accountPay > 0) {
+                    let found = accountPayData.find(account => account.name === entry.payeeName);
+                    if(found) {
+                        let index = accountPayData.indexOf(found);
+                        accountPayData[index].entries.push({
+                            date: entry.date,
+                            debit: entry.accountPay,
+                            credit: 0,
+                            balance: 0
+                        })
+                    }
+                    else {
+                        accountPayData.push({
+                            name: entry.payeeName,
+                            entries: [
+                                {
+                                    date: entry.date,
+                                    debit: entry.accountPay,
+                                    credit: 0,
+                                    balance: 0
+                                }
+                            ]
+                        })
+                    }
+                }
+            });
+        }
+        if(generalJournalData.length) {
+            generalJournalData.forEach(entry => {
+                if(entry.accountName.includes("-")) {
+                    /**
+                     * @type {string[]}
+                     */
+                    let arrName = [];
+                    arrName = entry.accountName.split("-");
+                    let found = accountPayData.find(account => account.name === arrName[1]);
+                    let mainDebit = entry.debit;
+                    if(mainDebit == 0) mainDebit = entry.debit2;
+                    if(found) {
+                        let index = accountPayData.indexOf(found);
+                        accountPayData[index].entries.push({
+                            date: entry.date,
+                            debit: mainDebit,
+                            credit: 0,
+                            balance: 0
+                        })
+                    }
+                    else {
+                        accountPayData.push({
+                            name: arrName[1],
+                            entries: [
+                                {
+                                    date: entry.date,
+                                    debit: mainDebit,
+                                    credit: 0,
                                     balance: 0
                                 }
                             ]
@@ -91,23 +182,23 @@
                         <div class="col">{entry.date}</div>
                         <div class="col">
                             {#if entry.debit}
-                                ${entry.debit}
+                                ${entry.debit.toLocaleString('en', {useGrouping:true})}
                             {:else }
                                 &nbsp
                             {/if}
                         </div>  
                         <div class="col">
                             {#if entry.credit}
-                                ${entry.credit}
+                                ${entry.credit.toLocaleString('en', {useGrouping:true})}
                             {:else }
                                 &nbsp
                             {/if}
                         </div>  
                         <div class="col">
-                            {#if entry.balance > 0}
-                                ${entry.balance}
+                            {#if entry.balance < 0}
+                                ${(-1 * entry.balance).toLocaleString('en', {useGrouping:true})}
                             {:else}
-                                ${-entry.balance}
+                                ${entry.balance.toLocaleString('en', {useGrouping:true})}
                             {/if}
                        </div>
                     {/each}

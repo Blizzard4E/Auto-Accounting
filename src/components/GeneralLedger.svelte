@@ -1,5 +1,5 @@
 <script>
-    import { cashReceiptJournal, salesJournal, purchaseJournal } from "../stores";
+    import { cashReceiptJournal, salesJournal, purchaseJournal, cashDisbursementsJournal, startingCapital, generalJournal } from "../stores";
     /**
      * @type {Array<{date: String, accountDebited: String, accountReceivableDr: Number, salesCr: Number,costOfGoodsSoldDr: Number, inventoryCr: Number}>}
      */
@@ -14,11 +14,25 @@
      * @type {Array<{date: String, accountName: String, dateInvoice: String, terms: String, accountPay: Number, inventory: Number, office: Number, other: Number}>}
      */
      let purchaseJournalData = [];
+
+    /**
+     * @type {Array<{date: String, payeeName: String, accountName: String, accountPay: Number, inventory: Number, cash: Number, other: Number}>}
+     */
+    let cashDisbursementsJournalData = [];
     
     /**
      * @type {Array<{name: String, entries: Array<{date: String, debit: Number, credit: Number, balance: Number}>}>}
      */
     let generalLedgerData = [];
+    /**
+     * @type {Array<{date: String, accountName: String, accountNameTo: String, explanation: String, debit: Number, credit: Number, debit2: Number, credit2: Number}>}
+     */
+     let generalJournalData = [];
+
+    generalJournal.subscribe((value) => {
+        generalJournalData = value;
+        updateJournal();
+    });
 
     salesJournal.subscribe(value => {
         salesJournalData = value;
@@ -35,6 +49,24 @@
         updateJournal();
     });
 
+    cashDisbursementsJournal.subscribe(value => {
+        cashDisbursementsJournalData = value;
+        updateJournal();
+    });
+
+    startingCapital.subscribe(value => {
+        let startingCapitalData = value;
+        generalLedgerData[1].entries.push({
+            date: startingCapitalData.date,
+            debit: startingCapitalData.inventory,
+            credit: 0,
+            balance: 0
+        });
+        generalLedgerData.forEach(account => {
+            account.entries = sortByDates(account.entries);
+        })
+    })
+
     /**
      * @param {Array<{date: String, debit: Number, credit: Number, balance: Number}>} arr
      */
@@ -42,6 +74,14 @@
         // @ts-ignore
         return arr.sort((a, b) => new Date(a.date) - new Date(b.date));
     }   
+    /**
+     * @param {Date} date
+     */
+     function formatDate(date) {
+        return date.toLocaleDateString('en', {
+            month: 'short', day: 'numeric', 
+        })
+    }
 
     function updateJournal() {
         generalLedgerData = [
@@ -89,31 +129,33 @@
         if(salesJournalData.length) {
             let accountReceivableTotal = 0;
             let inventoryTotal = 0;
+            let month = new Date(salesJournalData[0].date).getMonth();
+            let lastDay = new Date(2022, month + 1, 0);
             
             salesJournalData.forEach(entry => {
                 accountReceivableTotal += entry.accountReceivableDr;
                 inventoryTotal += entry.inventoryCr;
             })
             generalLedgerData[0].entries.push({
-                date: salesJournalData[salesJournalData.length - 1].date,
+                date: formatDate(lastDay),
                 debit: accountReceivableTotal,
                 credit: 0,
                 balance: 0
             });
             generalLedgerData[1].entries.push({
-                date: salesJournalData[salesJournalData.length - 1].date,
+                date: formatDate(lastDay),
                 debit: 0,
                 credit: inventoryTotal,
                 balance: 0
             });
             generalLedgerData[2].entries.push({
-                date: salesJournalData[salesJournalData.length - 1].date,
+                date: formatDate(lastDay),
                 debit: 0,
                 credit: accountReceivableTotal,
                 balance: 0
             });
             generalLedgerData[3].entries.push({
-                date: salesJournalData[salesJournalData.length - 1].date,
+                date: formatDate(lastDay),
                 debit: inventoryTotal,
                 credit: 0,
                 balance: 0
@@ -125,6 +167,8 @@
             let accountReceivableTotal = 0;
             let salesTotal = 0;
             let costOfGoodsTotal = 0;
+            let month = new Date(cashReceiptJournalData[0].date).getMonth();
+            let lastDay = new Date(2022, month + 1, 0);
 
             cashReceiptJournalData.forEach(entry => {
                 cashTotal += entry.cashDr;
@@ -152,7 +196,7 @@
             })
             if(accountReceivableTotal > 0) {
                 generalLedgerData[0].entries.push({
-                    date: cashReceiptJournalData[cashReceiptJournalData.length - 1].date,
+                    date: formatDate(lastDay),
                     debit: 0,
                     credit: accountReceivableTotal,
                     balance: 0
@@ -161,7 +205,7 @@
             
             if(salesTotal > 0) {
                 generalLedgerData[2].entries.push({
-                    date: cashReceiptJournalData[cashReceiptJournalData.length - 1].date,
+                    date: formatDate(lastDay),
                     debit: 0,
                     credit: salesTotal,
                     balance: 0
@@ -170,7 +214,7 @@
 
             if(cashTotal > 0) {
                 generalLedgerData[4].entries.push({
-                    date: cashReceiptJournalData[cashReceiptJournalData.length - 1].date,
+                    date: formatDate(lastDay),
                     debit: cashTotal,
                     credit: 0,
                     balance: 0
@@ -179,7 +223,7 @@
 
             if(salesDiscountTotal > 0) {
                 generalLedgerData[5].entries.push({
-                    date: cashReceiptJournalData[cashReceiptJournalData.length - 1].date,
+                    date: formatDate(lastDay),
                     debit: salesDiscountTotal,
                     credit: 0,
                     balance: 0
@@ -187,13 +231,13 @@
             }
             if(costOfGoodsTotal > 0) {
                 generalLedgerData[3].entries.push({
-                    date: salesJournalData[salesJournalData.length - 1].date,
+                    date: formatDate(lastDay),
                     debit: costOfGoodsTotal,
                     credit: 0,
                     balance: 0
                 });
                 generalLedgerData[1].entries.push({
-                    date: salesJournalData[salesJournalData.length - 1].date,
+                    date: formatDate(lastDay),
                     debit: 0,
                     credit: costOfGoodsTotal,
                     balance: 0
@@ -204,11 +248,79 @@
             let accountPayTotal = 0;
             let inventoryTotal = 0;
             let officeTotal = 0;
+            let month = new Date(purchaseJournalData[0].date).getMonth();
+            let lastDay = new Date(2022, month + 1, 0);
             purchaseJournalData.forEach(entry => {
                 accountPayTotal += entry.accountPay;
                 inventoryTotal += entry.inventory;
                 officeTotal += entry.office;
                 if(entry.other > 0) {
+                    /**
+                     * @type {string[]}
+                     */
+                    let arrName = [];
+                    arrName = entry.accountName.split("/");
+                    let found = generalLedgerData.find(account => account.name == arrName[0]);
+                    if(found) {
+                        let index = generalLedgerData.indexOf(found);
+                        generalLedgerData[index].entries.push({
+                            date: entry.date,
+                            debit: entry.other,
+                            credit: 0,
+                            balance: 0
+                        })
+                    }
+                    else {
+                        generalLedgerData.push({
+                            name: arrName[0],
+                            entries: [
+                                {
+                                    date: entry.date,
+                                    debit: entry.other,
+                                    credit: 0,
+                                    balance: 0
+                                }
+                            ]
+                        })
+                    }
+                }
+            })
+            if(accountPayTotal > 0) {
+                generalLedgerData[8].entries.push({
+                    date: formatDate(lastDay),
+                    debit: 0,
+                    credit: accountPayTotal,
+                    balance: 0
+                })
+            }
+            if(inventoryTotal > 0) {
+                generalLedgerData[1].entries.push({
+                    date: formatDate(lastDay),
+                    debit: inventoryTotal,
+                    credit: 0,
+                    balance: 0
+                })
+            }
+            if(officeTotal > 0) {
+                generalLedgerData[9].entries.push({
+                    date: formatDate(lastDay),
+                    debit: officeTotal,
+                    credit: 0,
+                    balance: 0
+                })
+            }
+        }
+        if(cashDisbursementsJournalData.length) {
+            let accountPayTotal = 0;
+            let inventoryTotal = 0;
+            let cashTotal = 0;
+            let month = new Date(cashDisbursementsJournalData[0].date).getMonth();
+            let lastDay = new Date(2022, month + 1, 0);
+            cashDisbursementsJournalData.forEach(entry => {
+                accountPayTotal += entry.accountPay;
+                inventoryTotal += entry.inventory;
+                cashTotal += entry.cash;
+                if(entry.other > 0 && entry.accountName != "Account Payable") {
                     let found = generalLedgerData.find(account => account.name === entry.accountName);
                     if(found) {
                         let index = generalLedgerData.indexOf(found);
@@ -234,30 +346,91 @@
                     }
                 }
             })
-            if(accountPayTotal > 0) {
-                generalLedgerData[8].entries.push({
-                    date: purchaseJournalData[purchaseJournalData.length - 1].date,
-                    debit: accountPayTotal,
-                    credit: 0,
+            if(cashTotal > 0) {
+                generalLedgerData[4].entries.push({
+                    date: formatDate(lastDay),
+                    debit: 0,
+                    credit: cashTotal,
                     balance: 0
                 })
             }
             if(inventoryTotal > 0) {
                 generalLedgerData[1].entries.push({
-                    date: purchaseJournalData[purchaseJournalData.length - 1].date,
-                    debit: inventoryTotal,
+                    date: formatDate(lastDay),
+                    debit: 0,
+                    credit: inventoryTotal,
+                    balance: 0
+                })
+            }
+            if(accountPayTotal > 0) {
+                generalLedgerData[8].entries.push({
+                    date: formatDate(lastDay),
+                    debit: accountPayTotal,
                     credit: 0,
                     balance: 0
                 })
             }
-            if(officeTotal > 0) {
-                generalLedgerData[9].entries.push({
-                    date: purchaseJournalData[purchaseJournalData.length - 1].date,
-                    debit: officeTotal,
-                    credit: 0,
-                    balance: 0
-                })
-            }
+        }
+        if(generalJournalData.length) {
+            generalJournalData.forEach(entry => {
+                if(entry.accountName.includes("-")) {
+                    /**
+                     * @type {string[]}
+                     */
+                    let arrName = [];
+                    arrName = entry.accountName.split("-");
+                    let found = generalLedgerData.find(account => account.name === arrName[0]);
+                    let mainDebit = entry.debit;
+                    if(mainDebit == 0) mainDebit = entry.debit2;
+                    if(found) {
+                        let index = generalLedgerData.indexOf(found);
+                        generalLedgerData[index].entries.push({
+                            date: entry.date,
+                            debit: mainDebit,
+                            credit: 0,
+                            balance: 0
+                        })
+                    }
+                    else {
+                        generalLedgerData.push({
+                            name: arrName[0],
+                            entries: [
+                                {
+                                    date: entry.date,
+                                    debit: mainDebit,
+                                    credit: 0,
+                                    balance: 0
+                                }
+                            ]
+                        })
+                    }
+                }
+                let found = generalLedgerData.find(account => account.name === entry.accountNameTo);
+                let mainDebit = entry.debit;
+                if(mainDebit == 0) mainDebit = entry.debit2;
+                if(found) {
+                    let index = generalLedgerData.indexOf(found);
+                    generalLedgerData[index].entries.push({
+                        date: entry.date,
+                        debit: 0,
+                        credit: mainDebit,
+                        balance: 0
+                    })
+                }
+                else {
+                    generalLedgerData.push({
+                        name: entry.accountNameTo,
+                        entries: [
+                            {
+                                date: entry.date,
+                                debit: 0,
+                                credit: mainDebit,
+                                balance: 0
+                            }
+                        ]
+                    })
+                }
+            })
         }
         generalLedgerData.forEach(account => {
             account.entries = sortByDates(account.entries);
@@ -277,6 +450,7 @@
     <h1>General Ledger</h1>
     <div class="accounts">
         {#each generalLedgerData as account}
+            {#if account.entries.length > 0}
             <div class="account">
                 <div class="name">
                     <h2>{account.name}</h2>
@@ -296,24 +470,25 @@
                         </div>
                         <div class="col">
                             {#if entry.debit}
-                                ${entry.debit}
+                                ${entry.debit.toLocaleString('en', {useGrouping:true})}
                             {/if}
                         </div>
                         <div class="col">
                             {#if entry.credit}
-                                ${entry.credit}
+                                ${entry.credit.toLocaleString('en', {useGrouping:true})}
                             {/if}
                         </div>
                         <div class="col">
                             {#if entry.balance < 0}
-                                ${-1 * entry.balance}
+                                ${(-1 * entry.balance).toLocaleString('en', {useGrouping:true})}
                             {:else}
-                                ${entry.balance}
+                                ${entry.balance.toLocaleString('en', {useGrouping:true})}
                             {/if}
                         </div>
                     {/each}
                 </div>
             </div>
+            {/if}
         {/each}
     </div>
 </main>
@@ -366,5 +541,42 @@
         border-right: 1px solid gray;
         border-bottom: 1px solid gray;
         padding: 0.25rem;
+    }
+    
+    .account:nth-of-type(4n + 1) {
+        background-color: rgb(248, 47, 255);
+    }
+    .account:nth-of-type(4n + 1) .col {
+        background-color: rgb(248, 186, 255);  
+    }
+    .account:nth-of-type(4n + 2) {
+        background-color: rgb(47, 224, 255);
+    }
+    .account:nth-of-type(4n + 2) .col {
+        background-color: rgb(186, 241, 255);  
+    }
+    .account:nth-of-type(4n + 3) {
+        background-color: rgb(47, 85, 255);
+    }
+    .account:nth-of-type(4n + 3) .col {
+        background-color: rgb(186, 216, 255);  
+    }
+    .account:nth-of-type(4n + 4) {
+        background-color: rgb(255, 47, 168);
+    }
+    .account:nth-of-type(4n + 4) .col {
+        background-color: rgb(255, 186, 218);  
+    }
+    .account:nth-of-type(4n + 5) {
+        background-color: rgb(255, 182, 47);
+    }
+    .account:nth-of-type(4n + 5) .col {
+        background-color: rgb(255, 227, 186);  
+    }
+    .account:nth-of-type(4n + 6) {
+        background-color: rgb(255, 113, 47);
+    }
+    .account:nth-of-type(4n + 6) .col {
+        background-color: rgb(255, 188, 186);  
     }
 </style>

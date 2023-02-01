@@ -9,6 +9,12 @@
     let salesJournalData = [];
     let debitTotal = 0;
     let creditTotal = 0;
+    let month;
+    /**
+     * @type {Date}
+     */
+    let lastDay;
+
 
     salesJournal.subscribe(value => {
         salesJournalData = value;
@@ -18,10 +24,18 @@
             debitTotal += entry.accountReceivableDr;
             creditTotal += entry.inventoryCr;
         });
+        if(salesJournalData.length) {
+            month = new Date(salesJournalData[0].date).getMonth();
+            lastDay = new Date(2022, month + 1, 0);
+        }
     });
 
     onMount(() => { 
         rows = salesJournalData.length;
+        if(salesJournalData.length) {
+            month = new Date(salesJournalData[0].date).getMonth();
+            lastDay = new Date(2022, month + 1, 0);
+        }
     })
 
     /**
@@ -34,6 +48,14 @@
         salesJournalData.length = rows;
         // @ts-ignore   
         salesJournal.update(value => salesJournalData);
+    }
+    /**
+     * @param {Date} date
+     */
+    function formatDate(date) {
+        return date.toLocaleDateString('en', {
+            month: 'short', day: 'numeric', 
+        })
     }
 </script>   
 
@@ -54,16 +76,16 @@
             <SalesJournalRow index={i}/>    
         {/each}
         {#if salesJournalData.length}
-            <div class="col">{salesJournalData[salesJournalData.length - 1].date}</div>
+            <div class="col">{formatDate(lastDay)}</div>
             <div class="col">Totals</div>
             <div class="col">   
                 {#if debitTotal}
-                    ${debitTotal}
+                    ${debitTotal.toLocaleString('en', {useGrouping:true})}
                 {/if}
             </div>
             <div class="col">
                 {#if creditTotal}
-                    ${creditTotal}
+                    ${creditTotal.toLocaleString('en', {useGrouping:true})}
                 {/if}
             </div>
         {/if}

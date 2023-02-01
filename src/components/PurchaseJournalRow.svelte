@@ -102,7 +102,10 @@
             updateJournal();
         }}>
             <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-            <input type="text" bind:value={data.date} bind:this={inputDate} on:mouseover={() => inputDate.focus()}>
+            <input type="text" bind:value={data.date} bind:this={inputDate} on:mouseover={() => {
+                inputDate.focus();
+                inputDate.select();
+            }}>
         </form>
     {:else}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -122,7 +125,10 @@
             updateJournal();
         }}>
             <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-            <input type="text" bind:value={data.accountName} bind:this={inputName} on:mouseover={() => inputName.focus()}>
+            <input type="text" bind:value={data.accountName} bind:this={inputName} on:mouseover={() => {
+                inputName.focus();
+                inputName.select();
+            }}>
         </form>
     {:else}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -142,7 +148,10 @@
             updateJournal();
         }}>
             <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-            <input type="text" bind:value={data.dateInvoice} bind:this={inputInvoice} on:mouseover={() => inputInvoice.focus()}>
+            <input type="text" bind:value={data.dateInvoice} bind:this={inputInvoice} on:mouseover={() => {
+                inputInvoice.focus();
+                inputInvoice.select();
+            }}>
         </form>
     {:else}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -162,7 +171,10 @@
             updateJournal();
         }}>
             <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-            <input type="text" bind:value={data.terms} bind:this={inputTerm} on:mouseover={() => inputTerm.focus()}>
+            <input type="text" bind:value={data.terms} bind:this={inputTerm} on:mouseover={() => {
+                inputTerm.focus();
+                inputTerm.select();
+            }}>
         </form>
     {:else}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -182,13 +194,16 @@
             updateJournal();
         }}>
             <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-            <input type="number" bind:value={data.accountPay} bind:this={inputAccPay} on:mouseover={() => inputAccPay.focus()}>
+            <input type="number" bind:value={data.accountPay} bind:this={inputAccPay} on:mouseover={() => {
+                inputAccPay.focus();
+                inputAccPay.select();
+            }}>
         </form>
     {:else}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <button class="name" on:click={() => editAccPay = true}>
             {#if data.accountPay}
-                ${data.accountPay}
+                ${data.accountPay.toLocaleString('en', {useGrouping:true})}
             {/if}
         </button>
     {/if}
@@ -204,13 +219,16 @@
             updateJournal();
         }}>
             <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-            <input type="number" bind:value={data.inventory} bind:this={inputInventory} on:mouseover={() => inputInventory.focus()}>
+            <input type="number" bind:value={data.inventory} bind:this={inputInventory} on:mouseover={() => {
+                inputInventory.focus();
+                inputInventory.select();
+            }}>
         </form>
     {:else}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <button class="name" on:click={() => editInventory = true}>
             {#if data.inventory}
-                ${data.inventory}
+                ${data.inventory.toLocaleString('en', {useGrouping:true})}
             {/if}
         </button>
     {/if}
@@ -226,13 +244,16 @@
             updateJournal();
         }}>
             <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-            <input type="number" bind:value={data.office} bind:this={inputOffice} on:mouseover={() => inputOffice.focus()}>
+            <input type="number" bind:value={data.office} bind:this={inputOffice} on:mouseover={() => {
+                inputOffice.focus();
+                inputOffice.select();
+            }}>
         </form>
     {:else}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <button class="name" on:click={() => editOffice = true}>
             {#if data.office}
-                ${data.office}
+                ${data.office.toLocaleString('en', {useGrouping:true})}
             {/if}
         </button>
     {/if}
@@ -248,13 +269,16 @@
             updateJournal();
         }}>
             <!-- svelte-ignore a11y-mouse-events-have-key-events -->
-            <input type="number" bind:value={data.other} bind:this={inputOther} on:mouseover={() => inputOther.focus()}>
+            <input type="number" bind:value={data.other} bind:this={inputOther} on:mouseover={() => {
+                inputOther.focus();
+                inputOther.select();
+            }}>
         </form>
     {:else}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <button class="name" on:click={() => editOther = true}>
             {#if data.other}
-                ${data.other}
+                ${data.other.toLocaleString('en', {useGrouping:true})}
             {/if}
         </button>
     {/if}
