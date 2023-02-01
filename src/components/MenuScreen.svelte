@@ -148,7 +148,10 @@
                 </div>
             </div>
         {:else if page == 1}
-            <h2>Projects List: </h2>
+            <div style="position: relative">
+                <button class="home" on:click={() => page = 0}>&lt;</button>
+                <h2>Projects List: </h2>
+            </div>
             {#if database.length}
                 {#each database as data, i}
                     <li on:click={() => loadProject(i)}>{data.name}</li>
@@ -179,6 +182,10 @@
 {/if}
 
 <style>
+        position: absolute;
+        top: 0;
+        left: -3rem;
+    }
     main {
         position: absolute;
         width: 100vw;
