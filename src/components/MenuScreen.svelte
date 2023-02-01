@@ -182,6 +182,7 @@
 {/if}
 
 <style>
+    .home {
         position: absolute;
         top: 0;
         left: -3rem;
