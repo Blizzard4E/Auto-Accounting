@@ -76,7 +76,11 @@
             <SalesJournalRow index={i}/>    
         {/each}
         {#if salesJournalData.length}
-            <div class="col">{formatDate(lastDay)}</div>
+            <div class="col">
+                {#if salesJournalData[0].date != ""}
+                    {formatDate(lastDay)}
+                {/if}
+            </div>
             <div class="col">Totals</div>
             <div class="col">   
                 {#if debitTotal}

@@ -178,10 +178,19 @@
             </form>
         {/if}
     </div>
+    <a href="https://github.com/Blizzard4E">By Choung Pheng Ear</a>
 </main>
 {/if}
 
 <style>
+    a {
+        font-weight: bold;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        font-size: 1.2rem;
+        margin: 0.5rem;
+    }
     .home {
         position: absolute;
         top: 0;
