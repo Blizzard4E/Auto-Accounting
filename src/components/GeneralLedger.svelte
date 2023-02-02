@@ -64,6 +64,15 @@
         });
         generalLedgerData.forEach(account => {
             account.entries = sortByDates(account.entries);
+            for (let i = 0; i < account.entries.length; i++) {
+                account.entries[i].balance = 0;
+                if(i == 0) {
+                    account.entries[i].balance = account.entries[i].debit - account.entries[i].credit;
+                }
+                else {
+                    account.entries[i].balance += account.entries[i-1].balance + account.entries[i].debit - account.entries[i].credit;
+                }
+            }
         })
     })
 
@@ -435,6 +444,7 @@
         generalLedgerData.forEach(account => {
             account.entries = sortByDates(account.entries);
             for (let i = 0; i < account.entries.length; i++) {
+                account.entries[i].balance = 0;
                 if(i == 0) {
                     account.entries[i].balance = account.entries[i].debit - account.entries[i].credit;
                 }
