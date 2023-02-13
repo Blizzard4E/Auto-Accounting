@@ -28,6 +28,10 @@
      * @type {Array<{date: String, accountName: String, accountNameTo: String, explanation: String, debit: Number, credit: Number, debit2: Number, credit2: Number}>}
      */
      let generalJournalData = [];
+     /**
+     * @type {{ date: any; inventory: any; }}
+     */
+    let startingCapitalData;
 
     generalJournal.subscribe((value) => {
         generalJournalData = value;
@@ -55,7 +59,7 @@
     });
 
     startingCapital.subscribe(value => {
-        let startingCapitalData = value;
+        startingCapitalData = value;
         generalLedgerData[1].entries.push({
             date: startingCapitalData.date,
             debit: startingCapitalData.inventory,
@@ -135,6 +139,14 @@
                 entries: []
             }
         ];
+        if(startingCapitalData) {
+            generalLedgerData[1].entries.push({
+                date: startingCapitalData.date,
+                debit: startingCapitalData.inventory,
+                credit: 0,
+                balance: 0
+            });
+        }
         if(salesJournalData.length) {
             let accountReceivableTotal = 0;
             let inventoryTotal = 0;
