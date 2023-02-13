@@ -110,42 +110,42 @@
                 }
             });
         }
-        if(generalJournalData.length) {
-            generalJournalData.forEach(entry => {
-                if(entry.accountName.includes("-")) {
-                    /**
-                     * @type {string[]}
-                     */
-                    let arrName = [];
-                    arrName = entry.accountName.split("-");
-                    let found = accountPayData.find(account => account.name === arrName[1]);
-                    let mainDebit = entry.debit;
-                    if(mainDebit == 0) mainDebit = entry.debit2;
-                    if(found) {
-                        let index = accountPayData.indexOf(found);
-                        accountPayData[index].entries.push({
-                            date: entry.date,
-                            debit: mainDebit,
-                            credit: 0,
-                            balance: 0
-                        })
-                    }
-                    else {
-                        accountPayData.push({
-                            name: arrName[1],
-                            entries: [
-                                {
-                                    date: entry.date,
-                                    debit: mainDebit,
-                                    credit: 0,
-                                    balance: 0
-                                }
-                            ]
-                        })
-                    }
-                }
-            });
-        }
+        // if(generalJournalData.length) {
+        //     generalJournalData.forEach(entry => {
+        //         if(entry.accountName.includes("-")) {
+        //             /**
+        //              * @type {string[]}
+        //              */
+        //             let arrName = [];
+        //             arrName = entry.accountName.split("-");
+        //             let found = accountPayData.find(account => account.name === arrName[1]);
+        //             let mainDebit = entry.debit;
+        //             if(mainDebit == 0) mainDebit = entry.debit2;
+        //             if(found) {
+        //                 let index = accountPayData.indexOf(found);
+        //                 accountPayData[index].entries.push({
+        //                     date: entry.date,
+        //                     debit: mainDebit,
+        //                     credit: 0,
+        //                     balance: 0
+        //                 })
+        //             }
+        //             else {
+        //                 accountPayData.push({
+        //                     name: arrName[1],
+        //                     entries: [
+        //                         {
+        //                             date: entry.date,
+        //                             debit: mainDebit,
+        //                             credit: 0,
+        //                             balance: 0
+        //                         }
+        //                     ]
+        //                 })
+        //             }
+        //         }
+        //     });
+        // }
         accountPayData.forEach(account => {
             account.entries = sortByDates(account.entries);
             for (let i = 0; i < account.entries.length; i++) {
