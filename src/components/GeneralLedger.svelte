@@ -472,7 +472,7 @@
                     <div class="col titles">Balance</div>
                     {#each account.entries as entry}
                         <div class="col">
-                            {#if entry.date}
+                            {#if entry.date != "Invalid Date"}
                                 {entry.date}
                             {:else }
                                 &nbsp
